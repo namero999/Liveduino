@@ -1,9 +1,9 @@
 Install under ~\Documents\Ableton\User Library\Presets\MIDI Effects\Max MIDI Effect\Liveduino
 
-<img src="screens/ui.png"/>
+<img src="Liveduino/screens/ui.png"/>
 <br/>
-<img src="screens/serial.png"/>
+<img src="Liveduino/screens/serial.png"/>
 <br/>
-<img src="screens/device.png"/>
+<img src="Liveduino/screens/device.png"/>
 <br/>
-<img src="screens/mapper.png"/>
+<img src="Liveduino/screens/mapper.png"/>

@@ -24,22 +24,31 @@ void setup() {
   Serial.begin(57600);
 
 }
-
+int note, velocity, brightness;
 void loop() {
 
   while (Serial.available() >= 3 && Serial.read() == 0xff) {
 
     value = Serial.read();
     pin = Serial.read();
-    if (pin == LED_PIN) {
-      int howMany = map(value, 0, 250, 0, NUM_LEDS), i;
-      for (i = 0; i < howMany; i++)
-        leds[i] = CRGB::Red;
-      for (; i < NUM_LEDS; i++)
-        leds[i] = CRGB::Black;
+    if (pin == 10) {
+      randomSeed(value);
+      note = random(256);
+      for (int i = 0; i < NUM_LEDS; i++)
+        leds[i] = CHSV(note, brightness, velocity);
     }
-    else
-      isPWM(pin) ? analogWrite(pin, value) : digitalWrite(pin, value);
+    else if (pin == 4) {
+      brightness = value;
+      for (int i = 0; i < NUM_LEDS; i++)
+        leds[i] = CHSV(note, brightness, velocity);
+    }
+    else if (pin == 11) {
+      velocity = value;
+      for (int i = 0; i < NUM_LEDS; i++)
+        leds[i] = CHSV(note, brightness, velocity);
+    }
+//      isPWM(pin) ? analogWrite(pin, value) : digitalWrite(pin, value);
+    leds[random(NUM_LEDS)] = CRGB::Black;
 
   }
 
