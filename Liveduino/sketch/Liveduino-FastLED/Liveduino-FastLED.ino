@@ -7,12 +7,14 @@
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
 
+unsigned long last[NUM_LEDS];
+
 int pin;
 int value;
 
 void setup() {
 
-  delay(2000); // power-up safety delay
+  delay(1000);
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
 
@@ -24,33 +26,29 @@ void setup() {
   Serial.begin(57600);
 
 }
-int note, velocity, brightness;
+
 void loop() {
 
+  unsigned long now = millis();
   while (Serial.available() >= 3 && Serial.read() == 0xff) {
 
     value = Serial.read();
     pin = Serial.read();
-    if (pin == 10) {
-      randomSeed(value);
-      note = random(256);
+
+    if (pin == 11) {
       for (int i = 0; i < NUM_LEDS; i++)
-        leds[i] = CHSV(note, brightness, velocity);
+        leds[i] = CRGB::Black;
+    } else {
+      int led = map(value, 0, 127, 0, NUM_LEDS - 1);
+      leds[led] = CHSV(map(value, 0, 127, 0, 255), 200, 200);
+      last[led] = now;
     }
-    else if (pin == 4) {
-      brightness = value;
-      for (int i = 0; i < NUM_LEDS; i++)
-        leds[i] = CHSV(note, brightness, velocity);
-    }
-    else if (pin == 11) {
-      velocity = value;
-      for (int i = 0; i < NUM_LEDS; i++)
-        leds[i] = CHSV(note, brightness, velocity);
-    }
-//      isPWM(pin) ? analogWrite(pin, value) : digitalWrite(pin, value);
-    leds[random(NUM_LEDS)] = CRGB::Black;
 
   }
+
+  if (now % 5 == 0)
+    for (int i = 0; i < NUM_LEDS; i++)
+      leds[i].fadeToBlackBy(1);
 
   FastLED.show();
 
