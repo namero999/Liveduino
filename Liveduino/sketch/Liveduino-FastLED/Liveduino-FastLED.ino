@@ -1,16 +1,15 @@
+#define FASTLED_ALLOW_INTERRUPTS 1
 #include <FastLED.h>
 
 #define LED_PIN     10
 #define NUM_LEDS    14
-#define BRIGHTNESS  16
+#define BRIGHTNESS  64
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
 
 unsigned long last[NUM_LEDS];
 
-int pin;
-int value;
 
 void setup() {
 
@@ -18,7 +17,7 @@ void setup() {
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
 
-  for (pin = 0; pin <= 13; pin++) {
+  for (int pin = 0; pin <= 13; pin++) {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, 0);
   }
@@ -29,27 +28,27 @@ void setup() {
 
 void loop() {
 
-  unsigned long now = millis();
-  while (Serial.available() >= 3 && Serial.read() == 0xff) {
-
-    value = Serial.read();
-    pin = Serial.read();
-
-    if (pin == 11) {
+  if (Serial.read() == 0xff) {
+    int  value = Serial.read();
+    int  channel = Serial.read();
+    int  analog = Serial.read();
+    int  pitch = value % 127;
+    bool on = value > 127;
+    if (channel == 6) {
       for (int i = 0; i < NUM_LEDS; i++)
         leds[i] = CRGB::Black;
     } else {
-      int led = map(value, 0, 127, 0, NUM_LEDS - 1);
-      leds[led] = CHSV(map(value, 0, 127, 0, 255), 200, 200);
-      last[led] = now;
+      if (channel  == 3) {
+        int led = map(pitch, 0, 127, 0, NUM_LEDS - 1);
+        leds[led] = on ? CRGB::Red : CRGB::Black; //CHSV(map(pitch, 0, 127, 0, 255), 255, on ? 200 : 0);
+      }
     }
-
   }
 
-  if (now % 5 == 0)
-    for (int i = 0; i < NUM_LEDS; i++)
-      leds[i].fadeToBlackBy(1);
-
+  //  if (now % 5 == 0)
+  //    for (int i = 0; i < NUM_LEDS; i++)
+  //      leds[i].fadeToBlackBy(2);
+  //
   FastLED.show();
 
 }
